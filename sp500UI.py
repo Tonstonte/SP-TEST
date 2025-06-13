@@ -32,23 +32,37 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Title area
+# Start main UI box
 st.markdown("<div class='main'>", unsafe_allow_html=True)
 st.title("📊 StockPark (earnGlad)")
-st.markdown("#### Predicting the S&P 500 with style 🧠💸")
+st.markdown("#### Predicting the S&P 500 with smart indicators 🧠💸")
 st.markdown("---")
 
-# Input area
-st.markdown("### 🔢 Enter input features:")
-input_features = []
-cols = st.columns(2)  # 2-column layout
+# Feature names
+feature_labels = [
+    "Open Price",
+    "High Price",
+    "Low Price",
+    "Close Price (Previous Day)",
+    "Volume",
+    "Relative Strength Index (RSI)",
+    "Exponential Moving Average (EMA 10)",
+    "Simple Moving Average (SMA 50)",
+    "MACD",
+    "Volatility Index (VIX)"
+]
 
-for i in range(10):
-    with cols[i % 2]:  # alternate between columns
-        val = st.number_input(f"Feature {i + 1}", value=0.0, format="%.4f")
+# Input layout
+st.markdown("### 🔢 Enter market indicators:")
+input_features = []
+cols = st.columns(2)
+
+for i, label in enumerate(feature_labels):
+    with cols[i % 2]:
+        val = st.number_input(label, value=0.0, format="%.4f")
         input_features.append(val)
 
-# Prediction logic
+# Prediction button
 if st.button("🎯 Predict"):
     input_array = np.array([input_features])
     prediction = model.predict(input_array)[0]
@@ -59,3 +73,6 @@ if st.button("🎯 Predict"):
     st.balloons()
 
 st.markdown("</div>", unsafe_allow_html=True)
+
+   
+
