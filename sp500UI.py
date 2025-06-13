@@ -1,10 +1,11 @@
 import streamlit as st
 import pickle
 import numpy as np
+import joblib
 
 # Load the trained model
 with open("model.pkl", "rb") as file:
-    model = pickle.load(file)
+    model = joblib.load("model.pkl")
 
 # Page title
 st.set_page_config(page_title="StockPark (earnGlad)", layout="centered")
