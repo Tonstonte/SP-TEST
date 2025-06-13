@@ -1,18 +1,19 @@
 import streamlit as st
 import joblib
 import numpy as np
+import pandas as pd
 
 # Load model
 model = joblib.load("model.pkl")
 
-# Set custom page config
+# Set page config
 st.set_page_config(
     page_title="StockPark (earnGlad)",
     page_icon="📈",
     layout="centered"
 )
 
-# Inject CSS for background and style
+# Inject custom CSS
 st.markdown("""
     <style>
     body {
@@ -32,28 +33,21 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Start main UI box
+# UI start
 st.markdown("<div class='main'>", unsafe_allow_html=True)
 st.title("📊 StockPark (earnGlad)")
-st.markdown("#### Predicting the S&P 500 with smart indicators 🧠💸")
+st.markdown("#### Predicting the S&P 500 — one indicator at a time 🧠📈")
 st.markdown("---")
 
-# Feature names
+# Feature labels
 feature_labels = [
-    "Open Price",
-    "High Price",
-    "Low Price",
-    "Close Price (Previous Day)",
-    "Volume",
-    "Relative Strength Index (RSI)",
-    "Exponential Moving Average (EMA 10)",
-    "Simple Moving Average (SMA 50)",
-    "MACD",
-    "Volatility Index (VIX)"
+    "Open Price", "High Price", "Low Price", "Close Price (Previous Day)",
+    "Volume", "Relative Strength Index (RSI)", "Exponential Moving Average (EMA 10)",
+    "Simple Moving Average (SMA 50)", "MACD", "Volatility Index (VIX)"
 ]
 
-# Input layout
-st.markdown("### 🔢 Enter market indicators:")
+### 🎯 Manual Input Prediction
+st.markdown("### 🔢 Manual Input:")
 input_features = []
 cols = st.columns(2)
 
@@ -62,17 +56,45 @@ for i, label in enumerate(feature_labels):
         val = st.number_input(label, value=0.0, format="%.4f")
         input_features.append(val)
 
-# Prediction button
-if st.button("🎯 Predict"):
+if st.button("📍 Predict One"):
     input_array = np.array([input_features])
     prediction = model.predict(input_array)[0]
     result = "📈 Price will go UP" if prediction == 1 else "📉 Price will go DOWN"
-
-    st.markdown("---")
     st.success(f"🚀 Prediction: **{result}**", icon="✅")
     st.balloons()
 
+st.markdown("---")
+
+### 📁 CSV Upload Section
+st.markdown("### 📂 Batch Upload via CSV")
+uploaded_file = st.file_uploader("Upload a CSV with the 10 required indicators", type="csv")
+
+if uploaded_file:
+    try:
+        df = pd.read_csv(uploaded_file)
+
+        if df.shape[1] != 10:
+            st.error("❌ CSV must have exactly 10 columns (features).")
+        else:
+            predictions = model.predict(df)
+            df["Prediction"] = ["UP" if p == 1 else "DOWN" for p in predictions]
+            st.success("✅ Predictions completed!")
+
+            st.dataframe(df.head())
+
+            csv = df.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                label="📥 Download Results as CSV",
+                data=csv,
+                file_name="stockpark_predictions.csv",
+                mime="text/csv"
+            )
+    except Exception as e:
+        st.error(f"Error processing file: {e}")
+
 st.markdown("</div>", unsafe_allow_html=True)
 
-   
 
+]
+
+ 
